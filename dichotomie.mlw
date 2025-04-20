@@ -1,0 +1,71 @@
+(*why3 prove -P alt-ergo*)
+
+theory RechercheDicho
+
+
+use int.Int
+use int.ComputerDivision
+use array.Array
+use array.IntArraySorted
+use ref.Ref
+
+exception PasTrouve
+
+
+let recherche_dicho (a: array int) (v: int): (res: int)
+  requires { sorted a }  (*T est trié*)
+  ensures  { 0 <= res < length a } (*Le résultat est un indice valide*)
+  ensures  { a[res] = v } (* T[res] est bien la valeur cherchée *)
+  (*Si ça pète une erreur, c'est que v n'est pas dans T*)
+  raises   { PasTrouve -> forall i. 0 <= i < length a -> a[i] <> v}
+=
+  let n = length a in
+  let ref g = 0 in
+  let ref d = (n-1) in
+  while g<=d do
+    (*Conditions sur gauche et droite*)
+    invariant { 0 <= g && d < n }
+    (*S'il existe v dans T, alors v est entre gauche et droite*)
+    invariant { forall i. 0 <= i < n -> a[i] = v -> g <= i <= d }
+    variant { d-g }
+    let m = g + div (d - g) 2 in
+    assert { g <= m <= d };
+    if a[m] < v then
+        g := m + 1
+      else if a[m] > v then
+        d := m - 1
+      else
+        return m
+  done;
+  raise PasTrouve
+
+
+let recherche_dicho2 (a: array int) (v: int) (gauche: int) (droite: int): (res: int)
+  requires { sorted a }  (*T est trié*)
+  requires { 0 <= gauche < length a}
+  requires { 0 <= droite < length a}
+  ensures  { gauche <= res <= droite } (*Le résultat est un indice valide*)
+  ensures  { a[res] = v } (* T[res] est bien la valeur cherchée *)
+  (*Si ça pète une erreur, c'est que v n'est pas dans T*)
+  raises   { PasTrouve -> forall i. gauche <= i < droite -> a[i] <> v}
+=
+  let ref g = gauche in
+  let ref d = droite in
+  while g<=d do
+    (*Conditions sur gauche et droite*)
+    invariant { gauche <= g && d <= droite }
+    (*S'il existe v dans T, alors v est entre gauche et droite*)
+    invariant { forall i. gauche <= i <= droite -> a[i] = v -> g <= i <= d }
+    variant { d-g }
+    let m = g + div (d - g) 2 in
+    assert { g <= m <= d };
+    if a[m] < v then
+        g := m + 1
+      else if a[m] > v then
+        d := m - 1
+      else
+        return m
+  done;
+  raise PasTrouve
+    
+end

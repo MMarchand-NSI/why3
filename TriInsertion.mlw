@@ -1,0 +1,58 @@
+(*why3 prove -P alt-ergo *)
+
+theory TriInsertion
+
+
+use int.Int
+use array.Array
+use array.IntArraySorted
+use array.ArrayPermut
+use array.ArrayEq
+use ref.Ref
+
+
+let inserer_bonne_place (a: array int) (i: int)
+  requires { 0 <= i < length a }
+  requires { sorted_sub a 0 i }  (*T[0..i-1] trié*)
+
+  ensures  { sorted_sub a 0 (i+1) }  (*T[0..i] trié*)
+  ensures  { permut_all (old a) a} (* la sortie est une permutation de l'entrée *)
+
+=
+  let a_deplacer = a[i] in
+  let ref j = i in
+  while j > 0 && a[j - 1] > a_deplacer do
+    invariant { 0 <= j <= i }
+    invariant { permut_all (old a) a[j <- a_deplacer] }
+    invariant { forall k1 k2.
+          0 <= k1 <= k2 <= i -> k1 <> j -> k2 <> j -> a[k1] <= a[k2] }
+    invariant { forall k. j+1 <= k <= i -> a_deplacer < a[k] }
+    variant { j }
+
+    label L in
+    a[j] <- a[j - 1];
+    assert { exchange (a at L)[j <- a_deplacer] a[j-1 <- a_deplacer] (j - 1) j };
+    (* Si dans le tableau avant l'affectation (a at L), on mettait a_deplacer à la place de a[j],
+      et dans le tableau après l'affectation, on mettait a_deplacer à la place de a[j-1],
+      alors ces deux tableaux ne diffèrent que par un échange entre j-1 et j. *)
+    j <- j - 1
+  done;
+  assert { forall k. 0 <= k < j -> a[k] <= a_deplacer };
+  a[j] <- a_deplacer
+
+
+let triselection (a: array int)
+  (* le tableau final est trié *)
+  ensures  { sorted a }
+  (* le tableau final est une permutation du tableau initial *)
+  ensures { permut_all (old a) a }
+=
+  let n = length a in
+  for i=1 to n-1 do
+    invariant { sorted_sub a 0 i }
+    invariant { permut_all (old a) a }
+
+    inserer_bonne_place a i
+  done;
+
+end

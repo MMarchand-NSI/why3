@@ -1,0 +1,51 @@
+(*why3 prove -P alt-ergo*)
+
+theory TriSelection
+
+use int.Int
+use array.Array
+use array.IntArraySorted
+use array.ArrayPermut
+use array.ArrayEq
+use ref.Ref
+
+let argmin (a: array int) (k: int) : int
+  requires { length a > 0 }
+  requires { 0 <= k < length a }
+  ensures  { k <= result < length a }
+  ensures  { forall i. k <= i < length a -> a[result] <= a[i] }
+=
+  let ref n = length a in
+  let ref imin = k in
+  for i = k+1 to n-1 do
+    invariant { k <= imin < i }
+    invariant { forall j. k <= j < i -> a[imin] <= a[j] }
+
+    if a[i] < a[imin] then imin := i
+
+  done;
+  imin
+
+
+let triselection (a: array int)
+  (* a est trié *)
+  ensures  { sorted a }
+  (* le tableau final est une permutation du tableau initial *)
+  ensures { permut_all (old a) a }
+=
+  let n = length a in
+  for i=0 to n-1 do
+    (*a[..i-1] est trié*)
+    invariant { sorted_sub a 0 i}
+    (*a[..i-1]<=a[i..]*)
+    invariant { forall j k. 0 <= j < i && i <= k < n -> a[j] <= a[k] }
+    (* Le nouveau a est toujours une permutation du tableau initial *)
+    invariant { permut_all (old a) a }
+
+    let imin = argmin a i in
+    let tmp = a[imin] in
+    a[imin] <- a[i];
+    a[i] <- tmp;
+  done;
+
+end
