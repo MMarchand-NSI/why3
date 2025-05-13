@@ -24,8 +24,12 @@ let recherche_dicho (a: array int) (v: int) : (res: option int)
   let ref g = 0 in
   let ref d = n - 1 in
   while g <= d do
+    (* gauche positif ou nul et droite inférieur à n *)
     invariant { 0 <= g && d < n }
+    (* La valeur recherchée est entre gauche et droite, i.e.
+       ∀ i∈[0, n-1],  a[i] = v ⇒ i∈[g, d] *)
     invariant { forall i. 0 <= i < n -> a[i] = v -> g <= i <= d }
+    (* Le variant de boucle est la quantité droite - gauche*)
     variant { d - g }
     let m = g + div (d - g) 2 in
     if a[m] < v then
@@ -35,6 +39,6 @@ let recherche_dicho (a: array int) (v: int) : (res: option int)
     else
       return Some m
   done;
-  None
+  return None
 
 end

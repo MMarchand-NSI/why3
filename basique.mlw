@@ -70,11 +70,12 @@ let factorielle(n: int) : (res: int)
   return res
 
 let fois2(n: int) : (res: int)
-  requires { n >= 0 }
-  ensures {res = 2*n}
+  requires { n >= 0 }  (* Pré condition *)
+  ensures {res = 2*n}  (* Post condition *)
 = 
   let ref res = 0 in
   for i=1 to n do
+    (* Invariant *)
     invariant {res = 2*(i-1)}
     res := res + 2
   done;
