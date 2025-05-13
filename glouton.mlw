@@ -1,0 +1,37 @@
+module Greedy
+
+  use import int.Int
+  use import list.List
+  use import list.Length
+  use import list.Mem
+  
+  use import ref.Ref
+
+  predicate sorted_desc (l:list int) =
+    forall i j:int. 0 <= i < j < length l ->
+      nth l i >= nth l j
+
+  predicate canonical (sys:list int) = 
+    1 ∈ sys ∧ sorted_desc sys ∧
+    forall n:int. n >= 0 ->
+      let g = greedy_count n sys in
+      forall k:int. coin_count n sys k -> g <= k
+
+  let greedy (n0:int) (sys:list int) : list int
+    requires { n0 >= 0 }
+    requires { canonical sys }
+    ensures  { sum result = n0 }
+    ensures  { forall c. mem c result -> mem c sys }
+    ensures  { optimal sys n0 (length result) }
+  =
+    var n = n0 in
+    var res = Nil in
+    while n > 0 do
+      variant { n }
+      invariant { sum res + n = n0 }
+      let p = max_coin n sys in   (* ghost helper: renvoie le max coin<=n *)
+      res <- Cons p res;
+      n <- n - p
+    done;
+    reverse res                  (* pour retrouver l’ordre décroissant *)
+end

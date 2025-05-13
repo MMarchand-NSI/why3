@@ -9,11 +9,11 @@ use array.ArrayPermut
 use array.ArrayEq
 use ref.Ref
 
-let argmin (a: array int) (k: int) : int
+let argmin (a: array int) (k: int) : (imin:int)
   requires { length a > 0 }
   requires { 0 <= k < length a }
-  ensures  { k <= result < length a }
-  ensures  { forall i. k <= i < length a -> a[result] <= a[i] }
+  ensures  { k <= imin < length a }
+  ensures  { forall i. k <= i < length a -> a[imin] <= a[i] }
 =
   let ref n = length a in
   let ref imin = k in
@@ -24,7 +24,7 @@ let argmin (a: array int) (k: int) : int
     if a[i] < a[imin] then imin := i
 
   done;
-  imin
+  return imin
 
 
 let triselection (a: array int)

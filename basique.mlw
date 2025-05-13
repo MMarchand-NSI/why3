@@ -1,0 +1,83 @@
+(*
+why3  version 1.8.0
+prover alt-ergo 2.6.0
+*)
+
+theory Basique
+
+use int.Int
+use int.Fact
+use array.Array
+use array.ArraySum
+
+use ref.Ref
+
+let concat (a: array int) (b: array int): (res: array int)
+  ensures {forall j. 0<=j<length a -> a[j]=res[j]}
+  ensures {forall j. 0<=j<length b -> b[j]=res[j+length a]}
+=
+  let na = length a in
+  let nb = length b in
+  let res = make (na+nb) 0 in
+  for i=0 to na-1 do
+    invariant { forall j. 0 <= j < i -> res[j] = a[j] }
+    res[i] <- a[i]
+  done;
+  for i=0 to nb-1 do
+    invariant { forall j. 0 <= j < na -> res[j] = a[j] }     (* prefix unchanged *)
+    invariant { forall j. 0 <= j < i  -> res[j + na] = b[j] } (* part of suffix done so far *)
+    res[i+na] <- b[i]
+  done;
+  return res
+
+
+let min (a: array int) : (res: int)
+  requires {length a>0}
+  ensures {exists i. 0 <= i < length a && res = a[i]}
+  ensures {forall i. 0<=i<length a -> res <= a[i]}
+=
+  let n = length a in
+  let ref res = a[0] in
+  for i=1 to n-1 do
+    invariant {exists j. 0 <= j < i && res = a[j]}
+    invariant {forall j. 0<=j<i -> res<=a[j]}
+    if a[i]<res then res := a[i]
+  done;
+  return res
+
+
+let somme (a: array int) : (res: int)
+  ensures { res = sum a 0 (length a) }
+=
+  let ref res = 0 in
+  for i = 0 to length a - 1 do
+    invariant { res = sum a 0 i }
+    res := res + a[i]
+  done;
+  return res
+
+
+
+let factorielle(n: int) : (res: int)
+  requires { n >= 0 }
+  ensures {res = fact n}
+=
+  let ref res = 1 in
+  for i=1 to n do
+    invariant {res = fact (i-1)}
+    res := res * i
+  done;
+  return res
+
+let fois2(n: int) : (res: int)
+  requires { n >= 0 }
+  ensures {res = 2*n}
+= 
+  let ref res = 0 in
+  for i=1 to n do
+    invariant {res = 2*(i-1)}
+    res := res + 2
+  done;
+  return res
+
+end

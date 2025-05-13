@@ -23,25 +23,23 @@ let inserer_bonne_place (a: array int) (i: int)
   let ref j = i in
   while j > 0 && a[j - 1] > a_deplacer do
     invariant { 0 <= j <= i }
+    (*quand on met a_deplacer à l'indice j, on a toujours une permutation du tableau initial*)
     invariant { permut_all (old a) a[j <- a_deplacer] }
-    invariant { forall k1 k2.
-          0 <= k1 <= k2 <= i -> k1 <> j -> k2 <> j -> a[k1] <= a[k2] }
+
+    (*Le tableau est trié quand on ignore l'indice j*)
+    invariant { forall k1 k2. 0 <= k1 <= k2 <= i -> k1 <> j -> k2 <> j -> a[k1] <= a[k2] }
+
+    (* a_deplacer < T[j+1..i] *)
     invariant { forall k. j+1 <= k <= i -> a_deplacer < a[k] }
     variant { j }
 
-    label L in
     a[j] <- a[j - 1];
-    assert { exchange (a at L)[j <- a_deplacer] a[j-1 <- a_deplacer] (j - 1) j };
-    (* Si dans le tableau avant l'affectation (a at L), on mettait a_deplacer à la place de a[j],
-      et dans le tableau après l'affectation, on mettait a_deplacer à la place de a[j-1],
-      alors ces deux tableaux ne diffèrent que par un échange entre j-1 et j. *)
     j <- j - 1
   done;
-  assert { forall k. 0 <= k < j -> a[k] <= a_deplacer };
   a[j] <- a_deplacer
 
 
-let triselection (a: array int)
+let tri_insertion (a: array int)
   (* le tableau final est trié *)
   ensures  { sorted a }
   (* le tableau final est une permutation du tableau initial *)
