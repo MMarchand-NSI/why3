@@ -14,7 +14,6 @@ use ref.Ref
 let inserer_bonne_place (a: array int) (i: int)
   requires { 0 <= i < length a }
   requires { sorted_sub a 0 i }  (*T[0..i-1] trié*)
-
   ensures  { sorted_sub a 0 (i+1) }  (*T[0..i] trié*)
   ensures  { permut_all (old a) a} (* la sortie est une permutation de l'entrée *)
 

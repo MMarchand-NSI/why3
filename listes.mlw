@@ -1,0 +1,34 @@
+theory Listes
+  use  int.Int
+  use  list.List
+  use  list.Length
+  use  list.SortedInt
+  use  list.Append   
+  use  list.Permut   
+  use  list.Mem
+
+  (* Fonctions auxiliaires - inchangées *)
+  let rec taille (l:list int) : int
+    variant { length l }
+  = match l with
+    | Nil -> 0
+    | Cons _ xs ->
+        1 + taille xs
+    end
+
+  let rec somme (l:list int) : int
+    variant { length l }
+  = match l with
+    | Nil -> 0
+    | Cons x xs ->
+        x + somme xs
+    end
+
+  let rec fact (n:int) : int
+    requires { n >= 0 }
+    variant  { n }
+    ensures  { result >= 1 }
+  = if n = 0 then 1 else n * fact (n - 1)
+
+end
+

@@ -1,0 +1,6 @@
+{
+    "chat.disableAIFeatures": false,
+    "editor.fontFamily": "'JetBrains Mono', 'Fira Code', 'Liberation Mono', monospace",
+    "editor.fontLigatures": true,
+    "terminal.integrated.fontFamily": "JetBrains Mono"
+}

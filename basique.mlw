@@ -75,10 +75,11 @@ let fois2(n: int) : (res: int)
 = 
   let ref res = 0 in
   for i=1 to n do
-    (* Invariant *)
     invariant {res = 2*(i-1)}
     res := res + 2
   done;
   return res
 
+
+  
 end
