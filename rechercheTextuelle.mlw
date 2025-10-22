@@ -1,0 +1,87 @@
+(** String search
+
+    Author: Jean-Christophe Filliâtre (CNRS)
+    from a SPARK demo by Claire Dross (Adacore) *)
+
+module Spec
+
+  use int.Int
+  use string.Char
+  use string.String
+
+  (* ***** all this to be moved to String? ***** *)
+  predicate (==) (x y: string) = eq_string x y
+
+  predicate matches (pat text: string) (p: int) =
+    0 <= p <= length text - length pat /\
+    substring text p (length pat) == pat
+  (* ***** *)
+
+end
+
+module Occurs
+
+  use int.Int
+  use mach.int.Int63
+  use string.String
+  use string.Char
+  use string.OCaml
+  use Spec
+
+  let partial occurs (pat text: string) (p: int63) : bool
+    requires { 0 <= p <= length text - length pat }
+    ensures  { result <-> matches pat text p }
+  = let (ghost n) = length text in
+    let m = length pat in
+    for i = 0 to m - 1 do
+      invariant { substring text p i == substring pat 0 i }
+      assert { p + i <= n };
+      if not (eq_char text[p + i] pat[i]) then return false
+    done;
+    true
+
+end
+
+module Naive
+
+  use int.Int
+  use mach.int.Int63
+  use string.String
+  use string.Char
+  use string.OCaml
+  use Spec
+  use Occurs
+
+  let partial search1 (pat text: string) : int63
+    requires { length pat <= length text }
+    ensures  { -1 <= result <= length text - length pat }
+    ensures  { if result = -1 then
+                 forall j. not (matches pat text j)
+               else
+                 matches pat text result }
+  =
+    let m = length pat in
+    let n = length text in
+    for i = 0 to n - m do
+      invariant { forall j. 0 <= j < i -> substring text j m <> pat }
+      if occurs pat text i then return i;
+    done;
+    -1
+
+  let partial search2 (pat text: string) : int63
+    requires { length pat <= length text }
+    ensures  { -1 <= result <= length text - length pat }
+    ensures  { if result = -1 then
+                 forall j. not (matches pat text j)
+               else
+                 matches pat text result }
+  =
+    let m = length pat in
+    let n = length text in
+    for i = 0 to n - m do
+      invariant { forall j. 0 <= j < i -> substring text j m <> pat }
+      if sub text i m = pat then return i;
+    done;
+   -1
+
+end
