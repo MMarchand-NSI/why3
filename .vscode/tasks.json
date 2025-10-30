@@ -1,0 +1,35 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "why3: alt-ergo",
+      "type": "shell",
+      "command": "opam",
+      "args": ["exec", "--", "why3", "prove", "${file}", "-P", "alt-ergo", "--timelimit", "5", "--memlimit", "1024"],
+      "presentation": { "reveal": "always", "panel": "shared", "group": "why3", "clear": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "why3: z3",
+      "type": "shell",
+      "command": "opam",
+      "args": ["exec", "--", "why3", "prove", "${file}", "-P", "z3", "--timelimit", "5", "--memlimit", "1024"],
+      "presentation": { "reveal": "always", "panel": "shared", "group": "why3", "clear": false },
+      "problemMatcher": []
+    },
+    {
+      "label": "why3: cvc5",
+      "type": "shell",
+      "command": "opam",
+      "args": ["exec", "--", "why3", "prove", "${file}", "-P", "cvc5", "--timelimit", "5", "--memlimit", "1024"],
+      "presentation": { "reveal": "always", "panel": "shared", "group": "why3", "clear": false },
+      "problemMatcher": []
+    },
+    {
+      "label": "why3: all provers",
+      "dependsOn": ["why3: alt-ergo", "why3: z3", "why3: cvc5"],
+      "dependsOrder": "sequence",
+      "presentation": { "reveal": "always", "panel": "shared", "group": "why3" }
+    }
+  ]
+}

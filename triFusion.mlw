@@ -1,40 +1,35 @@
 theory TriFusion
   use int.Int
   use array.Array
-  use ref.Ref
   use array.IntArraySorted
   use seq.Seq
+  use seq.Permut
+  use ref.Ref
 
   let fusion (a1 a2: array int) : array int
     requires { sorted a1 /\ sorted a2 }
     ensures  { sorted result }
-ensures { permut_all (to_seq result)
-                      (Seq.(++) (to_seq a1) (to_seq a2)) }
-  =
-    let i = ref 0 in
-    let j = ref 0 in
-    let k = ref 0 in
+    ensures  { permut_all (Array.to_seq result)
+                          ((Array.to_seq a1) ++ (Array.to_seq a2)) }
+  = 
+    let i  = ref 0 in
+    let j  = ref 0 in
+    let k  = ref 0 in
     let n1 = length a1 in
     let n2 = length a2 in
     let res = make (n1 + n2) 0 in
     while !k < n1 + n2 do
       invariant { 0 <= !i <= n1 /\ 0 <= !j <= n2 }
       invariant { 0 <= !k /\ !k = !i + !j /\ !k <= n1 + n2 }
-      invariant {
-        Seq.take (to_seq res) !k =
-          Seq.(++) (Seq.take (to_seq a1) !i) (Seq.take (to_seq a2) !j)
-      }
-      (* prefix of res is nondecreasing *)
+
       invariant {
         !k <= 1 \/ (forall p:int. 0 < p < !k -> res[p-1] <= res[p])
       }
-      variant   { (n1 - !i) + (n2 - !j) }
+      variant { (n1 - !i) + (n2 - !j) }
       if (!j = n2) || ((!i < n1) && (a1[!i] <= a2[!j])) then begin
-        res[!k] <- a1[!i];
-        i := !i + 1
+        res[!k] <- a1[!i]; i := !i + 1
       end else begin
-        res[!k] <- a2[!j];
-        j := !j + 1
+        res[!k] <- a2[!j]; j := !j + 1
       end;
       k := !k + 1
     done;

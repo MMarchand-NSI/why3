@@ -1,5 +1,10 @@
 theory BinarySearch
-
+(**
+Cet algo est souvent mal implémenté. On propose ici trois variantes :
+- une qui lance une exception si l'élément n'est pas trouvé
+- une qui retourne une option
+- une qui retourne l'indice d'insertion (lower_bound)
+**)
   use  int.Int
   use  int.ComputerDivision
   use  array.Array
@@ -9,51 +14,54 @@ theory BinarySearch
 
   exception Not_found
 
-  let binary_search (a : array int) (v : int) : int
-    requires { sorted a }
-    ensures  { 0 <= result < length a /\ a[result] = v }
-    raises   { Not_found -> forall i:int. 0 <= i < length a -> a[i] <> v }
-  =
-    let l = ref 0 in
-    let u = ref (length a) in
-    while !l < !u do
-      invariant { 0 <= !l <= !u <= length a }
-      invariant { forall i:int. 0 <= i < length a -> a[i] = v -> !l <= i < !u }
-      variant   { !u - !l }
-      let m = !l + div (!u - !l) 2 in
-      if a[m] < v then
-        l := m + 1
-      else if a[m] > v then
-        u := m
-      else
-        return m
-    done;
-    raise Not_found
+(* Binary search throwing an exception if not found *)
+let binary_search (a : array int) (v : int) : int
+  requires { sorted a }
+  ensures  { 0 <= result < length a /\ a[result] = v }
+  raises   { Not_found -> forall i:int. 0 <= i < length a -> a[i] <> v }
+=
+  let l = ref 0 in  (* lower index *)
+  let u = ref (length a) in  (* upper index *)
+  while !l < !u do
+    invariant { 0 <= !l <= !u <= length a }
+    invariant { forall i:int. 0 <= i < length a -> a[i] = v -> !l <= i < !u }
+    variant   { !u - !l }
+    let m = !l + div (!u - !l) 2 in
+    if a[m] < v then
+      l := m + 1
+    else if a[m] > v then
+      u := m
+    else
+      return m
+  done;
+  raise Not_found
 
-  let binary_search2 (a : array int) (v : int) : option int
-    requires { forall i1 i2:int. 0 <= i1 <= i2 < length a -> a[i1] <= a[i2] }
-    ensures  { match result with
-                | Some(i) -> 0 <= i < length a /\ a[i] = v 
-                | None -> forall i:int. 0 <= i < length a -> a[i] <> v
-                end}
-  =
-    let l = ref 0 in
-    let u = ref (length a) in
-    while !l < !u do
-      invariant { 0 <= !l <= !u <= length a }
-      invariant { forall i:int. 0 <= i < length a -> a[i] = v -> !l <= i < !u }
-      variant   { !u - !l }
-      let m = !l + div (!u - !l) 2 in
-      if a[m] < v then
-        (* any i <= m cannot hold v, by monotonicity *)
-        l := m + 1
-      else if a[m] > v then
-        u := m
-      else
-        return Some(m)
-    done;
-    None
+(* Binary search returning None if not found *)
+let binary_search2 (a : array int) (v : int) : option int
+  requires { forall i1 i2:int. 0 <= i1 <= i2 < length a -> a[i1] <= a[i2] }
+  ensures  { match result with
+              | Some(i) -> 0 <= i < length a /\ a[i] = v 
+              | None -> forall i:int. 0 <= i < length a -> a[i] <> v
+              end}
+=
+  let l = ref 0 in
+  let u = ref (length a) in
+  while !l < !u do
+    invariant { 0 <= !l <= !u <= length a }
+    invariant { forall i:int. 0 <= i < length a -> a[i] = v -> !l <= i < !u }
+    variant   { !u - !l }
+    let m = !l + div (!u - !l) 2 in
+    if a[m] < v then
+      (* any i <= m cannot hold v, by monotonicity *)
+      l := m + 1
+    else if a[m] > v then
+      u := m
+    else
+      return Some(m)
+  done;
+  None
 
+(* Binary search returning the index of insertion *)
 let lower_bound (a: array int) (v: int) : int
   requires { sorted a }
   ensures  { 0 <= result <= length a }

@@ -1,6 +1,7 @@
 theory Listes
   use  int.Int
   use  list.List
+  use  list.Sum
   use  list.Length
   use  list.SortedInt
   use  list.Append   
@@ -9,6 +10,7 @@ theory Listes
 
   (* Fonctions auxiliaires - inchangées *)
   let rec taille (l:list int) : int
+    ensures {result = length l}
     variant { length l }
   = match l with
     | Nil -> 0
@@ -17,6 +19,7 @@ theory Listes
     end
 
   let rec somme (l:list int) : int
+    ensures {result = sum l}
     variant { length l }
   = match l with
     | Nil -> 0

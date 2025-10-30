@@ -9,7 +9,6 @@ module Spec
   use string.Char
   use string.String
 
-  (* ***** all this to be moved to String? ***** *)
   predicate (==) (x y: string) = eq_string x y
 
   predicate matches (pat text: string) (p: int) =
