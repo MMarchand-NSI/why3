@@ -14,10 +14,34 @@ Cet algo est souvent mal implémenté. On propose ici trois variantes :
 
   exception Not_found
 
+
+let rec binary_search_rec (v : int) (l: int) (u: int) (a : array int)  : option int
+  requires { 0<= l <=u <=length a}
+  requires { sorted a }
+  ensures  { match result with
+              | Some(i) -> l <= i < u && a[i] = v 
+              | None -> forall i:int. l <= i < u -> a[i] <> v
+              end}
+  variant   { u - l }
+=
+  if l = u then
+    None
+  else
+    let m = l + div (u - l) 2 in
+    if a[m] < v then
+      binary_search_rec v (m + 1) u a
+    else if a[m] > v then
+      binary_search_rec v l m a
+    else if a[m] = v then
+      Some(m)
+    else
+      None
+
+
 (* Binary search throwing an exception if not found *)
 let binary_search (a : array int) (v : int) : int
   requires { sorted a }
-  ensures  { 0 <= result < length a /\ a[result] = v }
+  ensures  { 0 <= result < length a && a[result] = v }
   raises   { Not_found -> forall i:int. 0 <= i < length a -> a[i] <> v }
 =
   let l = ref 0 in  (* lower index *)
@@ -38,7 +62,7 @@ let binary_search (a : array int) (v : int) : int
 
 (* Binary search returning None if not found *)
 let binary_search2 (a : array int) (v : int) : option int
-  requires { forall i1 i2:int. 0 <= i1 <= i2 < length a -> a[i1] <= a[i2] }
+  requires { sorted a }
   ensures  { match result with
               | Some(i) -> 0 <= i < length a /\ a[i] = v 
               | None -> forall i:int. 0 <= i < length a -> a[i] <> v
@@ -60,6 +84,7 @@ let binary_search2 (a : array int) (v : int) : option int
       return Some(m)
   done;
   None
+
 
 (* Binary search returning the index of insertion *)
 let lower_bound (a: array int) (v: int) : int

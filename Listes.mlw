@@ -1,0 +1,76 @@
+module Listes
+  use  int.Int
+  use  int.MinMax
+  use int.EuclideanDivision
+
+  use  list.List
+  use  list.Sum
+  use  list.Length
+  use  list.SortedInt
+  use  list.Append
+  use  list.Permut   
+  use  list.Mem
+  use  list.Prefix
+
+  (* Fonctions auxiliaires - inchangées *)
+  let rec taille (l:list int) : int
+    ensures {result = length l}
+    variant { length l }
+  = match l with
+    | Nil -> 0
+    | Cons _ xs ->
+        1 + taille xs
+    end
+
+  let rec somme (l:list int) : int
+    ensures { result = sum l}
+    variant { length l }
+  = match l with
+    | Nil -> 0
+    | Cons x xs ->
+        x + somme xs
+    end
+
+  let rec fact (n:int) : int
+    requires { n >= 0 }
+    variant  { n }
+    ensures  { result >= 1 }
+  = if n = 0 then 1 else n * fact (n - 1)
+  
+  (* Renvoie les n premiers éléments (ou toute la liste si n > |l|) *)
+  let rec take (n:int) (l: list 'a) : list 'a
+    requires { n >= 0 }
+    ensures  { result = prefix n l }
+    ensures  { length result = min n (length l) }
+    variant  { n, length l }
+  = match l with
+    | Nil -> Nil
+    | Cons x xs ->
+        if n = 0 then Nil else Cons x (take (n-1) xs)
+    end
+
+
+  (* Renvoie les n premiers éléments (ou toute la liste si n > |l|) *)
+  let rec drop (n:int) (l: list 'a) : list 'a
+    requires { n >= 0 }
+    ensures  { l = (prefix n l) ++ result }
+    ensures  { length result = length l - length (prefix n l)  }        (* spéc précise et facile *)
+    variant  { n, length l }
+  = match l with
+    | Nil -> Nil
+    | Cons x xs ->
+        if n = 0 then Cons x xs else drop (n-1) xs
+    end
+
+  (* renvoie (l1, l2) avec l = l1 ++ l2 et |len l1 - len l2| <= 1 *)
+  let split (lst: list 'a) : (list 'a, list 'a)
+    ensures { let (l1,l2) = result in length lst < 2 || 
+             (length lst >= 2 && length l1 < length lst && length l2 < length lst) } 
+    ensures { let (l1,l2) = result in permut lst (l1 ++ l2) } 
+  = 
+    let n = div (length lst) 2 in
+    (take n lst, drop n lst) 
+
+
+end
+

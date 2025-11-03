@@ -1,0 +1,18 @@
+theory Split
+  use list.List
+  use int.Int
+  use int.EuclideanDivision
+  use list.Length
+  use list.Append
+  use list.Reverse
+
+
+
+  (* renvoie (l1, l2) avec l = l1 ++ l2 et |len l1 - len l2| <= 1 *)
+  let split (lst: list 'a) : (list 'a, list 'a)
+    ensures { let (l1,l2) = result in lst = l1 ++ l2 /\ abs (length l1 - length l2) <= 1 }
+  = 
+    let n = div (length lst) 2 in
+    (take n, drop n) 
+
+end

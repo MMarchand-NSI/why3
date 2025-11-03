@@ -1,37 +1,39 @@
-theory TriFusion
+(* why3 prove -P alt-ergo -t 60 triFusion.mlw 
+Augmenter le timeout si nécessaire, mais ça marche*)
+
+
+module TriFusion
+
   use int.Int
-  use array.Array
-  use array.IntArraySorted
-  use seq.Seq
-  use seq.Permut
-  use ref.Ref
+  use list.List
+  use list.Length
+  use list.Append
+  use list.Permut
+  use list.SortedInt
+  use Listes
+  
 
-  let fusion (a1 a2: array int) : array int
-    requires { sorted a1 /\ sorted a2 }
-    ensures  { sorted result }
-    ensures  { permut_all (Array.to_seq result)
-                          ((Array.to_seq a1) ++ (Array.to_seq a2)) }
-  = 
-    let i  = ref 0 in
-    let j  = ref 0 in
-    let k  = ref 0 in
-    let n1 = length a1 in
-    let n2 = length a2 in
-    let res = make (n1 + n2) 0 in
-    while !k < n1 + n2 do
-      invariant { 0 <= !i <= n1 /\ 0 <= !j <= n2 }
-      invariant { 0 <= !k /\ !k = !i + !j /\ !k <= n1 + n2 }
+  val function split (l :list int) : (list int, list int)
+    ensures { let (l1,l2) = result in length l < 2 || 
+             (length l >= 2 && length l1 < length l && length l2 < length l) } 
+    ensures { let (l1,l2) = result in permut l (l1 ++ l2) } 
 
-      invariant {
-        !k <= 1 \/ (forall p:int. 0 < p < !k -> res[p-1] <= res[p])
-      }
-      variant { (n1 - !i) + (n2 - !j) }
-      if (!j = n2) || ((!i < n1) && (a1[!i] <= a2[!j])) then begin
-        res[!k] <- a1[!i]; i := !i + 1
-      end else begin
-        res[!k] <- a2[!j]; j := !j + 1
-      end;
-      k := !k + 1
-    done;
-    res
+
+  val function merge (l1 l2 :list int) : list int
+    requires { sorted l1 /\ sorted l2  }
+    ensures { sorted result } 
+    ensures { permut (l1 ++ l2) result } 
+
+  
+  let rec function mergesort (l :list int)
+    ensures { sorted result } 
+    ensures { permut result l } 
+    variant { length l }
+  = match l with
+    | Nil -> Nil
+    | Cons x Nil -> Cons x Nil
+    | _ ->   let (l1,l2) = split l
+             in merge (mergesort l1) (mergesort l2)
+    end
+
 end
