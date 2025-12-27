@@ -1,39 +1,49 @@
-(* why3 prove -P alt-ergo -t 60 triFusion.mlw 
-Augmenter le timeout si nécessaire, mais ça marche*)
-
-
 module TriFusion
-
   use int.Int
-  use list.List
-  use list.Length
-  use list.Append
-  use list.Permut
-  use list.SortedInt
-  use Listes
+  use array.Array
+  use array.IntArraySorted
+  use array.ArrayPermut
+  use ref.Ref
   
-
-  val function split (l :list int) : (list int, list int)
-    ensures { let (l1,l2) = result in length l < 2 || 
-             (length l >= 2 && length l1 < length l && length l2 < length l) } 
-    ensures { let (l1,l2) = result in permut l (l1 ++ l2) } 
-
-
-  val function merge (l1 l2 :list int) : list int
-    requires { sorted l1 /\ sorted l2  }
-    ensures { sorted result } 
-    ensures { permut (l1 ++ l2) result } 
-
+  (* Prédicat : result contient tous les éléments de t1 et t2 *)
+  predicate elements_of (result t1 t2: array int) =
+    forall i. 0 <= i < length t1 -> exists j. 0 <= j < length result /\ result[j] = t1[i]
+    /\
+    forall i. 0 <= i < length t2 -> exists j. 0 <= j < length result /\ result[j] = t2[i]
   
-  let rec function mergesort (l :list int)
-    ensures { sorted result } 
-    ensures { permut result l } 
-    variant { length l }
-  = match l with
-    | Nil -> Nil
-    | Cons x Nil -> Cons x Nil
-    | _ ->   let (l1,l2) = split l
-             in merge (mergesort l1) (mergesort l2)
+  (* Axiome : la fusion de deux tableaux triés produit un tableau trié *)
+  axiom merge_correctness: forall t1 t2 result: array int.
+    sorted t1 -> sorted t2 ->
+    length result = length t1 + length t2 ->
+    elements_of result t1 t2 ->
+    sorted result
+
+let merge (t1 t2: array int) : array int
+  requires { sorted t1 }
+  requires { sorted t2 }
+  ensures { length result = length t1 + length t2 }
+  ensures { sorted result }
+  ensures { elements_of result t1 t2 }
+=
+  let n1 = length t1 in
+  let n2 = length t2 in
+  let result = make (n1+n2) 0 in
+  let ref i1 = 0 in
+  let ref i2 = 0 in
+  
+  for k = 0 to n1 + n2 - 1 do
+    invariant { i1 + i2 = k }
+    invariant { 0 <= i1 <= n1 }
+    invariant { 0 <= i2 <= n2 }
+    
+    if i1 < n1 && (i2 >= n2 || t1[i1] <= t2[i2]) then begin
+      result[k] <- t1[i1];
+      i1 <- i1 + 1
+    end else begin
+      result[k] <- t2[i2];
+      i2 <- i2 + 1
     end
-
+  done;
+  
+  result
 end

@@ -1,0 +1,22 @@
+module TestForEncoding
+
+  use int.Int
+  use ref.Ref
+
+  (* Test 1: boucle for classique *)
+  let test_for_loop (n: int) : int
+    requires { n >= 0 }
+    ensures { 2 * result = n * (n - 1) }
+  =
+    let ref sum = 0 in
+    for i = 0 to n - 1 do
+      invariant { 2 * sum = i * (i - 1) }
+      sum := sum + i
+    done;
+    sum
+
+end
+
+(* why3 prove -P z3 test_for_encoding.mlw --print-theory 
+montre que why3 encode les boucles for en intervalle fermé
+*)

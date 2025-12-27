@@ -1,0 +1,57 @@
+
+
+module Quicksort
+
+use array.Array
+use array.ArraySwap
+use array.ArrayPermut
+use int.Int
+use ref.Ref
+
+let partition (tab: array int) (a: int) (b: int) : int
+  requires { 0 <= a < b <= length tab }
+  ensures { a <= result < b }
+  ensures { tab[result] = (old tab)[a] }
+  ensures { forall i. a <= i < result -> tab[i] <= tab[result] }
+  ensures { forall i. result < i < b -> tab[i] > tab[result] }
+  ensures { permut_all (old tab) tab }
+=
+  let ghost old_tab = pure { tab } in
+  let pivot = tab[a] in
+  let ref ipivot = a in
+  
+  for i = a+1 to b-1 do
+    invariant { a <= ipivot < b }
+    invariant { tab[a] = pivot }
+    invariant { forall k. a < k <= ipivot -> tab[k] <= pivot }
+    invariant { forall k. ipivot < k < i -> tab[k] > pivot }
+    invariant { permut_all old_tab tab }
+    
+    if tab[i] <= pivot then begin
+      ipivot := ipivot + 1;
+      swap tab ipivot i
+    end
+  done;
+  
+  assert { tab[a] = pivot };
+  assert { forall k. a < k <= ipivot -> tab[k] <= pivot };
+  assert { forall k. ipivot < k < b -> tab[k] > pivot };
+  
+  swap tab a ipivot;
+  
+  assert { tab[ipivot] = pivot };
+  
+  ipivot
+
+(*
+let rec quicksort (tab: array int) (gauche: int) (droite: int)
+    requires { 0 <= gauche < droite <= length tab }
+    ensures {sorted_sub tab gauche (droite-1)}
+=
+  if droite - gauche > 1 then begin
+    let p = partition tab gauche droite in
+    quicksort tab gauche p;
+    quicksort tab (p+1) droite;
+  end
+*)
+end

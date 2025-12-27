@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE why3session PUBLIC "-//Why3//proof session v5//EN"
+"http://why3.lri.fr/why3session.dtd">
+<why3session shape_version="6">
+<prover id="0" name="Z3" version="4.8.12" timelimit="1" steplimit="0" memlimit="1000"/>
+<prover id="1" name="CVC5" version="1.1.2" timelimit="1" steplimit="0" memlimit="1000"/>
+<prover id="2" name="Alt-Ergo" version="2.6.2" timelimit="1" steplimit="0" memlimit="1000"/>
+<file format="whyml">
+<path name=".."/><path name="quicksort.mlw"/>
+<theory name="Quicksort">
+ <goal name="partition&#39;vc" expl="VC for partition">
+ <proof prover="0"><result status="timeout" time="1.000000"/></proof>
+ <proof prover="1"><result status="timeout" time="1.000000" steps="86246"/></proof>
+ <proof prover="2"><result status="timeout" time="1.000000" steps="2114"/></proof>
+ </goal>
+ <goal name="quicksort&#39;vc" expl="VC for quicksort">
+ </goal>
+</theory>
+</file>
+</why3session>

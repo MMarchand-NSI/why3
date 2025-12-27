@@ -1,0 +1,44 @@
+(** Recherche de motif dans une séquence
+
+    Author: Matthieu Marchand
+**)
+
+module RechTxt
+
+use int.Int
+use array.Array
+use option.Option
+use ref.Ref
+
+let naif (texte motif: array int) : option int
+  requires { 0 < length motif <= length texte }
+  (* Le motif n'apparaît nulle part dans le texte OU le motif apparaît dans le texte à la position pos *)
+  ensures { match result with
+    | None -> forall k. 0 <= k <= length texte - length motif -> 
+               exists l. 0 <= l < length motif && texte[k+l] <> motif[l]
+    | Some pos -> 0 <= pos <= length texte - length motif &&
+                  forall l. 0 <= l < length motif -> texte[pos+l] = motif[l]
+    end }
+=
+  let n = length texte in
+  let m = length motif in
+  let ref i = 0 in
+  while i <= n - m do
+    invariant { 0 <= i <= n - m + 1 }
+    (*Aucune occurrence du motif ne commence aux positions 0, 1, ..., i-1 du texte.*)
+    invariant { forall k. 0 <= k < i -> 
+                exists l. 0 <= l < m && texte[k+l] <> motif[l] }
+    variant { n - m + 1 - i }
+    let ref j = 0 in
+    while j < m && texte[i+j] = motif[j] do
+      invariant { 0 <= j <= m }
+      (* Les j premiers caractères du motif correspondent aux caractères du texte à partir de la position i *)
+      invariant { forall l. 0 <= l < j -> texte[i+l] = motif[l] }
+      variant { m - j }
+      j := j + 1
+    done;
+    if j = m then return (Some i);
+    i := i + 1
+  done;
+  None
+end

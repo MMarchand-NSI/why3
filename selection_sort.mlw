@@ -1,0 +1,85 @@
+(*why3 prove -P alt-ergo*)
+
+theory TriSelection
+
+use int.Int
+use array.Array
+use array.IntArraySorted
+use array.ArrayPermut
+use array.ArrayEq
+use ref.Ref
+
+(* VERSION ORIGINALE avec FOR (intervalle fermé) *)
+let argmin_for (a: array int) (k: int) : (imin:int)
+  requires { length a > 0 }
+  requires { 0 <= k < length a }
+  ensures  { k <= imin < length a }
+  ensures  { forall i. k <= i < length a -> a[imin] <= a[i] }
+=
+  let ref n = length a in
+  let ref imin = k in
+  for i = k+1 to n-1 do
+    invariant { k <= imin < i }
+    invariant { forall j. k <= j < i -> a[imin] <= a[j] }
+    if a[i] < a[imin] then imin := i
+  done;
+  return imin
+
+(* VERSION WHILE avec intervalle semi-ouvert [k+1, n) *)
+let argmin_while (a: array int) (k: int) : (imin:int)
+  requires { length a > 0 }
+  requires { 0 <= k < length a }
+  ensures  { k <= imin < length a }
+  ensures  { forall i. k <= i < length a -> a[imin] <= a[i] }
+=
+  let n = length a in
+  let ref imin = k in
+  let ref i = k + 1 in
+  while i < n do
+    invariant { k + 1 <= i <= n }
+    invariant { k <= imin < i }
+    invariant { forall j. k <= j < i -> a[imin] <= a[j] }
+    variant { n - i }
+    if a[i] < a[imin] then imin := i;
+    i := i + 1
+  done;
+  return imin
+
+
+(* VERSION ORIGINALE avec FOR (intervalle fermé) *)
+let triselection_for (a: array int)
+  ensures  { sorted a }
+  ensures { permut_all (old a) a }
+=
+  let n = length a in
+  for i=0 to n-1 do
+    invariant { sorted_sub a 0 i}
+    invariant { forall j k. 0 <= j < i && i <= k < n -> a[j] <= a[k] }
+    invariant { permut_all (old a) a }
+    let imin = argmin_for a i in
+    let tmp = a[imin] in
+    a[imin] <- a[i];
+    a[i] <- tmp;
+  done
+
+(* VERSION WHILE avec intervalle semi-ouvert [0, n) *)
+let triselection_while (a: array int)
+  ensures  { sorted a }
+  ensures { permut_all (old a) a }
+=
+  let n = length a in
+  let ref i = 0 in
+  while i < n do
+    invariant { 0 <= i <= n }
+    invariant { sorted_sub a 0 i }
+    invariant { forall j k. 0 <= j < i && i <= k < n -> a[j] <= a[k] }
+    invariant { permut_all (old a) a }
+    variant { n - i }
+    let imin = argmin_while a i in
+    let tmp = a[imin] in
+    a[imin] <- a[i];
+    a[i] <- tmp;
+    i := i + 1
+  done
+
+end

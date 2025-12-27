@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE why3session PUBLIC "-//Why3//proof session v5//EN"
+"https://www.why3.org/why3session.dtd">
+<why3session shape_version="6">
+<prover id="0" name="Alt-Ergo" version="2.6.2" timelimit="10" steplimit="0" memlimit="1000"/>
+<file format="whyml">
+<path name=".."/><path name="dichotomie.mlw"/>
+<theory name="BinarySearch">
+ <goal name="binary_search_old&#39;vc" expl="VC for binary_search_old">
+ </goal>
+ <goal name="binary_search_new&#39;vc" expl="VC for binary_search_new" proved="true">
+ <proof prover="0"><path name="dichotomie-BinarySearch-binary_search_newqtvc_1.psmt2"/><result status="valid" time="0.090121" steps="279"/></proof>
+ </goal>
+ <goal name="binary_search_rec&#39;vc" expl="VC for binary_search_rec">
+ </goal>
+ <goal name="binary_search&#39;vc" expl="VC for binary_search">
+ </goal>
+ <goal name="binary_search_insert&#39;vc" expl="VC for binary_search_insert">
+ </goal>
+</theory>
+</file>
+</why3session>
