@@ -5,6 +5,7 @@ module Quicksort
 use array.Array
 use array.ArraySwap
 use array.ArrayPermut
+use array.IntArraySorted
 use int.Int
 use ref.Ref
 
@@ -12,30 +13,45 @@ use ref.Ref
 let partition_test (tab: array int) (a: int) (b: int) : int
   requires { 0 <= a < b <= length tab }
   ensures { a <= result < b }
+  ensures { permut_sub (old tab) tab a b }
+
 =
   let ref ipivot = a in
   
   for i = a+1 to b-1 do
     invariant { a <= ipivot < i }
+    invariant { permut_sub (old tab) tab a b }
     ipivot := ipivot + 1
   done;
   
   ipivot
 
+(** swaper dans l'intervalle [a, b) préserve les permutations **)
+let swap_local (t: array int) (i j: int) (a b: int) : unit
+  requires { 0 <= a <= i < b <= length t }
+  requires { 0 <= a <= j < b <= length t }
+  ensures { exchange (old t) t i j }
+  ensures { permut_sub (old t) t a b }
+=
+  swap t i j
 
 let partition_minimal (tab: array int) (a: int) (b: int) : int
   requires { 0 <= a < b <= length tab }
   ensures { a <= result < b }
+  ensures { permut_all (old tab) tab }
+  ensures { permut_sub (old tab) tab a b }
 =
   let pivot = tab[a] in
   let ref ipivot = a in
   
   for i = a+1 to b-1 do
     invariant { a <= ipivot < i }
+    invariant { permut_all (old tab) tab }
+    invariant { permut_sub (old tab) tab a b }
     
     if tab[i] <= pivot then begin
       ipivot := ipivot + 1;
-      swap tab ipivot i
+      swap_local tab ipivot i a b;  (* Ajout du swap *)
     end
   done;
   
@@ -44,30 +60,59 @@ let partition_minimal (tab: array int) (a: int) (b: int) : int
 
 let partition (tab: array int) (a: int) (b: int) : int
   requires { 0 <= a < b <= length tab }
-  ensures { permut_all (old tab) tab }
   ensures { a <= result < b }
+  ensures { permut_all (old tab) tab }
+  ensures { permut_sub (old tab) tab a b }
   ensures { tab[result] = (old tab)[a] }
-  ensures { forall i. a <= i < result -> tab[i] <= tab[result] }
-  ensures { forall i. result < i < b -> tab[i] > tab[result] }
+  ensures { forall i. a <= i < result -> tab[i] < tab[result] }
+  ensures { forall i. result < i < b -> tab[i] >= tab[result] }
 =
   let pivot = tab[a] in
   let ref ipivot = a in
   
   for i = a+1 to b-1 do
-    invariant { 0 <= a <= ipivot < i <= b <= length tab}
+    invariant { 0 <= a <= ipivot < i <= b <= length tab }
     invariant { permut_all (old tab) tab }
+    invariant { permut_sub (old tab) tab a b }
     invariant { tab[a] = pivot }
-    invariant { forall k. a < k <= ipivot -> tab[k] <= pivot }
-    invariant { forall k. ipivot < k < i -> tab[k] > pivot }
+    invariant { forall k. a < k <= ipivot -> tab[k] < pivot }
+    invariant { forall k. ipivot < k < i -> tab[k] >= pivot }
     
-    if tab[i] <= pivot then begin
+    if tab[i] < pivot then begin
       ipivot := ipivot + 1;
-      swap tab ipivot i
+      swap_local tab ipivot i a b
     end
   done;
-    
-  swap tab a ipivot;
-    
+  
+  swap_local tab a ipivot a b;
   ipivot
 
-  end
+
+let rec quicksort (tab: array int) (a: int) (b: int) : unit
+  requires { 0 <= a <= b <= length tab }
+  ensures { sorted_sub tab a b }
+  ensures { permut_sub (old tab) tab a b }
+  variant { b - a }
+=
+  if a + 1 >= b then return;
+  
+  label L in
+  let p = partition tab a b in
+  
+  assert { permut_sub (tab at L) tab a b };
+  assert { forall i. a <= i < p -> tab[i] < tab[p] };
+  assert { forall i. p < i < b -> tab[i] >= tab[p] };
+  
+  label M in
+  quicksort tab a p;
+  
+  assert { permut_sub (tab at M) tab a p };
+  assert { sorted_sub tab a p };
+  
+  label N in
+  quicksort tab (p + 1) b;
+  
+  assert { permut_sub (tab at N) tab (p+1) b };
+  assert { sorted_sub tab (p+1) b }
+
+end
