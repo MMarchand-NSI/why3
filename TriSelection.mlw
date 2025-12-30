@@ -46,6 +46,9 @@ let triselection (a: array int)
     let tmp = a[imin] in
     a[imin] <- a[i];
     a[i] <- tmp;
-  done;
+  done
 
-end
+
+
+(* reconstituer le complet, ça sera plus facile avec des variables déjà bien nommées en haut et en bas*)
+
