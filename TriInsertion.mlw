@@ -1,5 +1,14 @@
 (*why3 prove -P alt-ergo *)
 
+
+(*
+L'encodage Why3 des boucles for utilise une quantification séquentielle (∀a. ∀i.) 
+qui permet un raisonnement structurel, tandis que les boucles while utilisent 
+une quantification simultanée (∀i,a.) qui crée une explosion combinatoire 
+en présence d'appels de fonctions. Cette limitation est spécifique à l'encodage Why3
+et ne reflète pas une propriété intrinsèque des intervalles semi-ouverts
+*)
+
 theory TriInsertion
 
 
@@ -9,6 +18,8 @@ use array.IntArraySorted
 use array.ArrayPermut
 use array.ArrayEq
 use ref.Ref
+use ref.Refint
+
 
 
 let inserer_bonne_place (a: array int) (i: int)
@@ -40,7 +51,7 @@ let inserer_bonne_place (a: array int) (i: int)
   a[j] <- a_deplacer
 
 
-let tri_insertion (a: array int)
+let tri_insertion_for (a: array int)
   (* le tableau final est trié *)
   ensures  { sorted a }
   (* le tableau final est une permutation du tableau initial *)
@@ -55,43 +66,5 @@ let tri_insertion (a: array int)
 
     inserer_bonne_place a i
   done
-
-
-
-let tri_insertion_complet (a: array int)
-  (* le tableau final est une permutation du tableau initial *)
-  ensures { permut_all (old a) a }
-  (* le tableau final est trié *)
-  ensures  { sorted a }
-=
-  let n = length a in
-  for i=1 to n-1 do
-    invariant {i<=1<n}
-    (* T[O..i) est trié au début de l'itération*)
-    invariant { sorted_sub a 0 i }
-    (* le tableau est toujours une permutation du tableau initial *)
-    invariant { permut_all (old a) a }
-
-    let a_deplacer = a[i] in
-    let ref j = i in
-    while j > 0 && a[j - 1] > a_deplacer do
-      (* Cet invariant est important et sa conservation empêche formellement les underflows *)
-      invariant { 0 <= j <= i }
-      (*quand on met a_deplacer à l'indice j, on a toujours une permutation du tableau initial*)
-      invariant { permut_all (old a) a[j <- a_deplacer] }
-
-      (* a_deplacer < T[j+1..i+1) *)
-      invariant { forall k. j+1 <= k <= i -> a_deplacer < a[k] }
-
-      (*Le tableau est trié quand on ignore l'indice j*)
-      invariant { forall k1 k2. 0 <= k1 <= k2 < i+1 -> k1 <> j -> k2 <> j -> a[k1] <= a[k2] }
-
-      variant { j }
-
-      a[j] <- a[j - 1];
-      j <- j - 1
-    done;
-    a[j] <- a_deplacer
-  done;
 
 end

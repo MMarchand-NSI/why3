@@ -94,21 +94,9 @@ let contient (tab: array int) (elt: int) (a: int) (b: int) : bool
   done;
   false
 
-
-
-(** `a[0..fin)` n'a pas de duplicates *)
-predicate nodup (a: array 'a) (fin: int) =
-  forall i j. 0 <= i < j < fin -> a[i] <> a[j]
-
-(** `v` appears in `a[0..s)` *)
-predicate contient (v: 'a) (a: array 'a) (s: int) =
-  exists i. 0 <= i < s /\ a[i] = v
-
-
 (**
 renvoie r tel que tab[0, r) soit dédoublonné.
-[r, length tab) contient les doublons.
-Pas opti, mais valide
+[r, length tab) contient les doublons
 **)
 let deduplication (tab: array int) : int
   ensures { 0<=result<=length tab }
@@ -129,7 +117,36 @@ let deduplication (tab: array int) : int
     end else 
       i := i + 1
   done;
+  return r
+
+
+lemma dedup_preservation:
+  forall tab1 tab:array int, r1 i1 j:int.
+  tab = tab1[r1 <- tab1[i1]] ->
+  0 <= j < r1 < length tab1 ->
+  tab[j] = tab1[j]
+
+let deduplication2 (tab: array int) : int
+  requires { length tab > 0 }
+  ensures { 0 <= result <= length tab }
+  ensures { forall i j. 0 <= i < j < result -> tab[i] <> tab[j] }
+  ensures { forall i. 0 <= i < length (old tab) -> 
+            exists j. 0 <= j < result /\ (old tab)[i] = tab[j] }
+=
+  let ghost old_tab = copy tab in
+  let ref r = 0 in
+  let ref i = 0 in
+  while i < length tab do
+    invariant { 0 <= r <= i <= length tab }
+    invariant { forall j k. 0 <= j < k < r -> tab[j] <> tab[k] }
+    invariant { forall j. 0 <= j < i -> exists k. 0 <= k < r /\ old_tab[j] = tab[k] }
+    variant { length tab - i }
+    if not (contient tab tab[i] 0 r) then begin
+      tab[r] <- tab[i];
+      r := r + 1
+    end;
+    i := i + 1
+  done;
   r
 
-
-end
+  end

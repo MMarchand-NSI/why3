@@ -1,0 +1,53 @@
+<call_prover>Call_provers: actual command is:
+               /home/mattm/.opam/5.2.1/bin/alt-ergo --timelimit 10.
+               /tmp/why_bdf0b8_TriInsertion-T-inserer_bonne_placeqtvc.psmt2
+<call_prover>Request sent to prove_client: timelimit=41.00 memlimit=1000
+cmd=[/home/mattm/.opam/5.2.1/bin/alt-ergo, --timelimit, 10.,
+    /tmp/why_bdf0b8_TriInsertion-T-inserer_bonne_placeqtvc.psmt2]
+<call_prover>Call_provers: exited with status 0
+<call_prover>Call_provers: prover output:
+
+; File "/tmp/why_bdf0b8_TriInsertion-T-inserer_bonne_placeqtvc.psmt2", line 431, characters 1-12: Valid (1.9387) (14793 steps) (goal g_1)
+
+unsat
+
+File TriInsertion.mlw:
+Goal inserer_bonne_place'vc.
+Prover result is: Valid (1.95s, 14793 steps).
+
+<call_prover>Call_provers: actual command is:
+               /home/mattm/.opam/5.2.1/bin/alt-ergo --timelimit 10.
+               /tmp/why_8c60bd_TriInsertion-T-tri_insertion_forqtvc.psmt2
+<call_prover>Request sent to prove_client: timelimit=41.00 memlimit=1000
+cmd=[/home/mattm/.opam/5.2.1/bin/alt-ergo, --timelimit, 10.,
+    /tmp/why_8c60bd_TriInsertion-T-tri_insertion_forqtvc.psmt2]
+<call_prover>Call_provers: exited with status 0
+<call_prover>Call_provers: prover output:
+
+; File "/tmp/why_8c60bd_TriInsertion-T-tri_insertion_forqtvc.psmt2", line 328, characters 1-12: Valid (0.0266) (116 steps) (goal g_1)
+
+unsat
+
+File TriInsertion.mlw:
+Goal tri_insertion_for'vc.
+Prover result is: Valid (0.04s, 116 steps).
+
+<call_prover>Call_provers: actual command is:
+               /home/mattm/.opam/5.2.1/bin/alt-ergo --timelimit 10.
+               /tmp/why_95bab3_TriInsertion-T-tri_insertion_whileqtvc.psmt2
+<call_prover>Request sent to prove_client: timelimit=41.00 memlimit=1000
+cmd=[/home/mattm/.opam/5.2.1/bin/alt-ergo, --timelimit, 10.,
+    /tmp/why_95bab3_TriInsertion-T-tri_insertion_whileqtvc.psmt2]
+<call_prover>Call_provers: exited with status 142
+<call_prover>Call_provers: prover output:
+
+; File "/tmp/why_95bab3_TriInsertion-T-tri_insertion_whileqtvc.psmt2", line 326, characters 1-12: Timeout (9.2547) (23785 steps) (goal g_1)
+
+unknown
+(error "timeout")
+
+<call_prover>[Call_provers.parse_prover_run] answer after 9.256178 >= 0.9 * timelimit - 0.1 -> Timeout
+File TriInsertion.mlw:
+Goal tri_insertion_while'vc.
+Prover result is: Timeout (10.00s, 23785 steps).
+

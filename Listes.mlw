@@ -72,5 +72,6 @@ module Listes
     (take n lst, drop n lst) 
 
 
+
 end
 

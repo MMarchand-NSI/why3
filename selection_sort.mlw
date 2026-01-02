@@ -2,6 +2,38 @@
 
 theory TriSelection
 
+
+(* 
+
+Rappel: Les invariants doivent tenir:
+
+- Avant d'entrer dans la boucle (i = 0)
+-  À chaque itération (0 < i < n)
+-  À la sortie (i = n) (Sinon on ne peut rien prouver en sortie)
+
+
+En Why3, la boucle for i = a to b utilise un intervalle fermé [a, b]. 
+Pour raisonner avec des intervalles semi-ouverts [a, b), nous utilisons la boucle while i < b 
+qui exprime directement la condition de terminaison exclusive. 
+Cette syntaxe s'aligne avec les langages modernes (Rust, Go, Zig) 
+et évite les décréments d'indice (bricolage).
+
+alt-ergo:
+La version while avec intervalle semi-ouvert [0, n) est au moins aussi efficace à prouver 
+que la version for avec intervalle fermé [0, n-1].
+
+Contrairement à une intuition suggérant que la gestion explicite du variant 
+dans `while` alourdirait la preuve, les mesures empiriques démontrent le 
+contraire : la condition de terminaison explicite `i < n` génère des 
+obligations de preuve plus compactes et plus faciles à résoudre que la 
+borne calculée `i ≤ n-1`.
+
+
+z3 et cvc5 échouent à vérifier les tris dans un temps raisonnable pédagogiquement parlant (10s).
+argmin est au moins aussi efficace à prouver.
+
+*)
+
 use int.Int
 use array.Array
 use array.IntArraySorted
@@ -9,7 +41,6 @@ use array.ArrayPermut
 use array.ArrayEq
 use ref.Ref
 
-(* VERSION ORIGINALE avec FOR (intervalle fermé) *)
 let argmin_for (a: array int) (k: int) : (imin:int)
   requires { length a > 0 }
   requires { 0 <= k < length a }
@@ -25,7 +56,21 @@ let argmin_for (a: array int) (k: int) : (imin:int)
   done;
   return imin
 
-(* VERSION WHILE avec intervalle semi-ouvert [k+1, n) *)
+let triselection_for (a: array int)
+  ensures  { sorted a }
+  ensures { permut_all (old a) a }
+=
+  let n = length a in
+  for i=0 to n-1 do
+    invariant { sorted_sub a 0 i}
+    invariant { forall j k. 0 <= j < i && i <= k < n -> a[j] <= a[k] }
+    invariant { permut_all (old a) a }
+    let imin = argmin_for a i in
+    let tmp = a[imin] in
+    a[imin] <- a[i];
+    a[i] <- tmp;
+  done
+
 let argmin_while (a: array int) (k: int) : (imin:int)
   requires { length a > 0 }
   requires { 0 <= k < length a }
@@ -46,23 +91,6 @@ let argmin_while (a: array int) (k: int) : (imin:int)
   return imin
 
 
-(* VERSION ORIGINALE avec FOR (intervalle fermé) *)
-let triselection_for (a: array int)
-  ensures  { sorted a }
-  ensures { permut_all (old a) a }
-=
-  let n = length a in
-  for i=0 to n-1 do
-    invariant { sorted_sub a 0 i}
-    invariant { forall j k. 0 <= j < i && i <= k < n -> a[j] <= a[k] }
-    invariant { permut_all (old a) a }
-    let imin = argmin_for a i in
-    let tmp = a[imin] in
-    a[imin] <- a[i];
-    a[i] <- tmp;
-  done
-
-(* VERSION WHILE avec intervalle semi-ouvert [0, n) *)
 let triselection_while (a: array int)
   ensures  { sorted a }
   ensures { permut_all (old a) a }

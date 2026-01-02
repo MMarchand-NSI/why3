@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE why3session PUBLIC "-//Why3//proof session v5//EN"
+"https://www.why3.org/why3session.dtd">
+<why3session shape_version="6">
+<prover id="0" name="Alt-Ergo" version="2.6.2" timelimit="10" steplimit="0" memlimit="1000"/>
+<file format="whyml">
+<path name=".."/><path name="basique.mlw"/>
+<theory name="Basique">
+ <goal name="concat&#39;vc" expl="VC for concat">
+ </goal>
+ <goal name="min&#39;vc" expl="VC for min">
+ </goal>
+ <goal name="somme&#39;vc" expl="VC for somme">
+ </goal>
+ <goal name="factorielle&#39;vc" expl="VC for factorielle">
+ </goal>
+ <goal name="fois2&#39;vc" expl="VC for fois2">
+ </goal>
+ <goal name="contient&#39;vc" expl="VC for contient">
+ </goal>
+ <goal name="deduplication&#39;vc" expl="VC for deduplication">
+ </goal>
+ <goal name="dedup_preservation">
+ </goal>
+ <goal name="deduplication2&#39;vc" expl="VC for deduplication2">
+ <proof prover="0"><result status="timeout" time="10.000000" steps="33594"/></proof>
+ <transf name="split_vc" >
+  <goal name="deduplication2&#39;vc.0" expl="loop invariant init" proved="true">
+  <proof prover="0"><result status="valid" time="0.048886" steps="4"/></proof>
+  </goal>
+  <goal name="deduplication2&#39;vc.1" expl="loop invariant init" proved="true">
+  <proof prover="0"><result status="valid" time="0.044960" steps="10"/></proof>
+  </goal>
+  <goal name="deduplication2&#39;vc.2" expl="loop invariant init" proved="true">
+  <proof prover="0"><result status="valid" time="0.019992" steps="8"/></proof>
+  </goal>
+  <goal name="deduplication2&#39;vc.3" expl="index in array bounds" proved="true">
+  <proof prover="0"><result status="valid" time="0.024349" steps="14"/></proof>
+  </goal>
+  <goal name="deduplication2&#39;vc.4" expl="precondition" proved="true">
+  <proof prover="0"><result status="valid" time="0.032547" steps="14"/></proof>
+  </goal>
+  <goal name="deduplication2&#39;vc.5" expl="index in array bounds" proved="true">
+  <proof prover="0"><result status="valid" time="0.036192" steps="14"/></proof>
+  </goal>
+  <goal name="deduplication2&#39;vc.6" expl="index in array bounds" proved="true">
+  <proof prover="0"><result status="valid" time="0.032607" steps="14"/></proof>
+  </goal>
+  <goal name="deduplication2&#39;vc.7" expl="loop variant decrease" proved="true">
+  <proof prover="0"><result status="valid" time="0.036182" steps="26"/></proof>
+  </goal>
+  <goal name="deduplication2&#39;vc.8" expl="loop invariant preservation" proved="true">
+  <proof prover="0"><result status="valid" time="0.019556" steps="26"/></proof>
+  </goal>
+  <goal name="deduplication2&#39;vc.9" expl="loop invariant preservation" proved="true">
+  <proof prover="0"><result status="valid" time="0.074007" steps="235"/></proof>
+  </goal>
+  <goal name="deduplication2&#39;vc.10" expl="loop invariant preservation">
+  <proof prover="0"><result status="timeout" time="10.000000" steps="33217"/></proof>
+  </goal>
+  <goal name="deduplication2&#39;vc.11" expl="loop variant decrease" proved="true">
+  <proof prover="0"><result status="valid" time="0.032670" steps="22"/></proof>
+  </goal>
+  <goal name="deduplication2&#39;vc.12" expl="loop invariant preservation" proved="true">
+  <proof prover="0"><result status="valid" time="0.025700" steps="22"/></proof>
+  </goal>
+  <goal name="deduplication2&#39;vc.13" expl="loop invariant preservation" proved="true">
+  <proof prover="0"><result status="valid" time="0.036188" steps="43"/></proof>
+  </goal>
+  <goal name="deduplication2&#39;vc.14" expl="loop invariant preservation">
+  <proof prover="0"><result status="timeout" time="10.000000" steps="18897"/></proof>
+  </goal>
+  <goal name="deduplication2&#39;vc.15" expl="postcondition" proved="true">
+  <proof prover="0"><result status="valid" time="0.023526" steps="16"/></proof>
+  </goal>
+  <goal name="deduplication2&#39;vc.16" expl="postcondition" proved="true">
+  <proof prover="0"><result status="valid" time="0.011607" steps="26"/></proof>
+  </goal>
+  <goal name="deduplication2&#39;vc.17" expl="postcondition" proved="true">
+  <proof prover="0"><result status="valid" time="0.057295" steps="274"/></proof>
+  </goal>
+ </transf>
+ </goal>
+</theory>
+</file>
+</why3session>

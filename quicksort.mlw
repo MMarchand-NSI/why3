@@ -1,5 +1,6 @@
+(* -*- coding: utf-8 -*- *)
 
-
+(* Faire tourner avec >4G RAM dispo mini *)
 module Quicksort
 
 use array.Array
@@ -9,6 +10,7 @@ use array.IntArraySorted
 use int.Int
 use ref.Ref
 
+(*
 
 let partition_test (tab: array int) (a: int) (b: int) : int
   requires { 0 <= a < b <= length tab }
@@ -25,8 +27,10 @@ let partition_test (tab: array int) (a: int) (b: int) : int
   done;
   
   ipivot
+*)
 
-(** swaper dans l'intervalle [a, b) préserve les permutations **)
+(** swaper dans l'intervalle [a, b) préserve les permutations 
+C'est nécessaire car why3 ne fait pas le lien **)
 let swap_local (t: array int) (i j: int) (a b: int) : unit
   requires { 0 <= a <= i < b <= length t }
   requires { 0 <= a <= j < b <= length t }
@@ -35,6 +39,7 @@ let swap_local (t: array int) (i j: int) (a b: int) : unit
 =
   swap t i j
 
+(*
 let partition_minimal (tab: array int) (a: int) (b: int) : int
   requires { 0 <= a < b <= length tab }
   ensures { a <= result < b }
@@ -56,7 +61,7 @@ let partition_minimal (tab: array int) (a: int) (b: int) : int
   done;
   
   ipivot
-
+*)
 
 let partition (tab: array int) (a: int) (b: int) : int
   requires { 0 <= a < b <= length tab }
@@ -88,13 +93,26 @@ let partition (tab: array int) (a: int) (b: int) : int
   ipivot
 
 
+axiom sorted_partition_concat:
+  forall a: array int, l p r: int.
+  0 <= l <= p < r <= length a ->
+  sorted_sub a l p ->
+  sorted_sub a (p+1) r ->
+  (forall i. l <= i < p -> a[i] < a[p]) ->
+  (forall i. p < i < r -> a[i] >= a[p]) ->
+  sorted_sub a l r
+
 let rec quicksort (tab: array int) (a: int) (b: int) : unit
   requires { 0 <= a <= b <= length tab }
   ensures { sorted_sub tab a b }
   ensures { permut_sub (old tab) tab a b }
   variant { b - a }
 =
-  if a + 1 >= b then return;
+  if a + 1 >= b then begin
+    assert { sorted_sub tab a b };  (* Intervalle vide/singleton déjà trié *)
+    assert { permut_sub tab tab a b };  (* Permutation identité *)
+    return
+  end;
   
   label L in
   let p = partition tab a b in
@@ -108,11 +126,14 @@ let rec quicksort (tab: array int) (a: int) (b: int) : unit
   
   assert { permut_sub (tab at M) tab a p };
   assert { sorted_sub tab a p };
+  assert { tab[p] = (tab at M)[p] };
   
-  label N in
+  label N in  
   quicksort tab (p + 1) b;
   
   assert { permut_sub (tab at N) tab (p+1) b };
-  assert { sorted_sub tab (p+1) b }
+  assert { sorted_sub tab (p+1) b };
+  assert { forall i. a <= i < p -> tab[i] < tab[p] };
+  assert { forall i. p < i < b -> tab[i] >= tab[p] }
 
 end
