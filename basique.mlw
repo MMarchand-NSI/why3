@@ -95,6 +95,22 @@ let contient (tab: array int) (elt: int) (a: int) (b: int) : bool
   false
 
 
+let est_trie (tab: array int) : bool
+  ensures { result <-> forall i. 1 <= i < length tab -> tab[i] <= tab[i-1] }
+=
+  let n = length tab in
+  let ref i = 1 in
+  while i < n && tab[i] <= tab[i-1] do
+    invariant { 1 <= i }
+    invariant { forall j. 1 <= j < i -> tab[j] <= tab[j-1] }
+    variant { n - i }
+    i := i + 1
+  done;
+  return i >= n
+
+
+
+
 
 (** `a[0..fin)` n'a pas de duplicates *)
 predicate nodup (a: array 'a) (fin: int) =
