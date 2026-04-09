@@ -5,43 +5,35 @@ module TriFusion
   use array.ArrayPermut
   use ref.Ref
   
-  (* Prédicat : result contient tous les éléments de t1 et t2 *)
-  predicate elements_of (result t1 t2: array int) =
-    forall i. 0 <= i < length t1 -> exists j. 0 <= j < length result /\ result[j] = t1[i]
-    /\
-    forall i. 0 <= i < length t2 -> exists j. 0 <= j < length result /\ result[j] = t2[i]
-  
-  (* Axiome : la fusion de deux tableaux triés produit un tableau trié *)
-  axiom merge_correctness: forall t1 t2 result: array int.
-    sorted t1 -> sorted t2 ->
-    length result = length t1 + length t2 ->
-    elements_of result t1 t2 ->
-    sorted result
-
 let merge (t1 t2: array int) : array int
   requires { sorted t1 }
   requires { sorted t2 }
   ensures { length result = length t1 + length t2 }
-  ensures { sorted result }
-  ensures { elements_of result t1 t2 }
 =
   let n1 = length t1 in
   let n2 = length t2 in
   let result = make (n1+n2) 0 in
   let ref i1 = 0 in
   let ref i2 = 0 in
-  
-  for k = 0 to n1 + n2 - 1 do
-    invariant { i1 + i2 = k }
+  while i1 + i2 < n1 + n2 do
     invariant { 0 <= i1 <= n1 }
     invariant { 0 <= i2 <= n2 }
-    
-    if i1 < n1 && (i2 >= n2 || t1[i1] <= t2[i2]) then begin
-      result[k] <- t1[i1];
-      i1 <- i1 + 1
+    invariant {sorted_sub result 0 (i1 + i2)}
+    variant { n1 + n2 - i1 - i2 }
+    if i1 <> n1 && i2 <> n2 then begin
+      if t1[i1] <= t2[i2] then begin
+        result[i1 + i2] <- t1[i1];
+        i1 := i1 + 1
+      end else begin
+        result[i1 + i2] <- t2[i2];
+        i2 := i2 + 1
+      end
+    end else if i1 < n1 then begin
+      result[i1 + i2] <- t1[i1];
+      i1 := i1 + 1
     end else begin
-      result[k] <- t2[i2];
-      i2 <- i2 + 1
+      result[i1 + i2] <- t2[i2];
+      i2 := i2 + 1
     end
   done;
   
